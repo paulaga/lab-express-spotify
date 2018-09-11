@@ -1,11 +1,12 @@
+require('dotenv').config();
+
 const express = require('express');
+const app = express();
 const path = require('path');
 const hbs = require('hbs');
-const bodyparser = require('body-parser')
-var SpotifyWebApi = require('spotify-web-api-node');
+const bodyparser = require('body-parser');
+const SpotifyWebApi = require('spotify-web-api-node');
 
-
-const app = express();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -16,14 +17,10 @@ app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
-// Remember to paste here your credentials
-var clientId = '3218d9910e094d9d9a465e02c7487f4e',
-    clientSecret = '6436a12537084b1d8f03f10cedc153c6';
-
+// Spotify credentials
 var spotifyApi = new SpotifyWebApi({
-  clientId : clientId,
-  clientSecret : clientSecret
+  clientId : process.env.clientId,
+  clientSecret : process.env.clientSecret
 });
 
 // Retrieve an access token.
@@ -38,12 +35,22 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
+app.get('/users/user/:play/playlist/4Q7sxkXzveON4HQYOkctmQ/tracks', (req, res) => {
+  spotifyApi.getList()
+  .then(data => {
+    console.log(data)
+    res.render('artist-list',{data:data.body});
+  })
+  .catch(err => {
+    console.log(error)
+  })
+})
+
 app.get('/artist', (req, res) => {
   const {art} = req.query; 
 
   spotifyApi.searchArtists(art)
     .then(data => {
-      console.log(data.body.artists.items)
       res.render('artist-list',{data:data.body.artists.items});
     })
     .catch(err => {
@@ -52,8 +59,6 @@ app.get('/artist', (req, res) => {
 })
 
 app.get('/albums/:artistId', (req, res) => {
-  console.log(req.params.artistId)
-
   spotifyApi.getArtistAlbums(req.params.artistId)
   .then(data => {
     console.log(data)

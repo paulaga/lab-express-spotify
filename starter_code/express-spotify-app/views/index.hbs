@@ -1,4 +1,11 @@
 <div class="bg">
+  <div class="container">
+    {{#each data}}
+    <div class="album">
+      {{data}}
+    </div>
+    {{/each}}
+  </div>
   <form action="/artist" method="GET">
     <input type="text" name="art">
     <button type="submit">Search for an Artist</button>
